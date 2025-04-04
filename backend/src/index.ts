@@ -20,12 +20,21 @@ app.get("/", async (req: Request, res: Response) => {
     const html = await ejs.renderFile(__dirname + `/views/emails/welcome.ejs`, {
       name: "Lakshay Nandwani",
     });
-    await sendEmail("gifixan327@motivue.com", "Testing SMTP", html);
+    // await sendEmail("gifixan327@motivue.com", "Testing SMTP", html);
+    await emailQueue.add(emailQueueName, {
+      to: "cilej26221@movfull.com",
+      subject: "Testing Queue email",
+      body: html,
+    });
     res.json({ msg: "Email sent successfully" });
   } catch (error) {
     console.log(error);
   }
 });
+
+// Queues
+import "./jobs/index.js";
+import { emailQueue, emailQueueName } from "./jobs/EmailJob.js";
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
