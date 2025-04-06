@@ -1,6 +1,5 @@
 import { ZodError } from "zod";
 import ejs from "ejs";
-import { fileURLToPath } from "url";
 import path from "path";
 
 export const formatError = (error: ZodError): any => {
@@ -15,7 +14,7 @@ export const renderEmailEjs = async (
   fileName: string,
   payload: any
 ): Promise<string> => {
-  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  const __dirname = path.resolve();
   const html: string = await ejs.renderFile(
     __dirname + `/views/emails/${fileName}.ejs`,
     payload

@@ -2,11 +2,12 @@ import express, { Application, Request, Response } from "express";
 import "dotenv/config";
 import path from "path";
 import ejs from "ejs";
-import { fileURLToPath } from "url";
-import Routes from "./routes/index.js";
+import Routes from "./routes/index";
 const app: Application = express();
 const PORT = process.env.PORT || 7000;
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const __dirname = path.resolve();
+console.log(__dirname);
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -36,8 +37,8 @@ app.get("/", async (req: Request, res: Response) => {
 });
 
 // Queues
-import "./jobs/index.js";
-import { emailQueue, emailQueueName } from "./jobs/EmailJob.js";
+import "./jobs/index";
+import { emailQueue, emailQueueName } from "./jobs/EmailJob";
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

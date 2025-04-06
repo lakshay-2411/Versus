@@ -1,13 +1,71 @@
 import { Router, Request, Response } from "express";
-import { registerSchema } from "../validation/authValidation.js";
+import { loginSchema, registerSchema } from "../validation/authValidation";
 import { ZodError } from "zod";
-import { formatError, renderEmailEjs } from "../helper.js";
-import prisma from "../config/database.js";
+import { formatError, renderEmailEjs } from "../helper";
+import prisma from "../config/database";
 import bcrypt from "bcrypt";
 import { v4 as uuid4 } from "uuid";
-import { emailQueue, emailQueueName } from "../jobs/EmailJob.js";
+import jwt from "jsonwebtoken";
+import { emailQueue, emailQueueName } from "../jobs/EmailJob";
+import authMiddleware from "../middleware/AuthMiddleware";
 
 const router = Router();
+
+// Login route
+router.post("/login", async (req: Request, res: Response) => {
+  try {
+    const body = req.body;
+    const payload = loginSchema.parse(body);
+    let user = await prisma.user.findUnique({
+      where: { email: payload.email },
+    });
+    if (!user || user === null) {
+      res.status(422).json({
+        errors: {
+          email: "No user found with this email.",
+        },
+      });
+      return;
+    }
+    // Check if the password is correct
+    const compare = await bcrypt.compare(payload.password, user?.password);
+    if (!compare) {
+      res.status(422).json({
+        errors: {
+          email: "Invalid email or password.",
+        },
+      });
+      return;
+    }
+
+    // JWT payload
+    let JWTPayload = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    };
+    const token = jwt.sign(JWTPayload, process.env.SECRET_KEY!, {
+      expiresIn: "365d",
+    });
+    res.json({
+      message: "Logged in successfully.",
+      data: {
+        ...JWTPayload,
+        token: `Bearer ${token}`,
+      },
+    });
+  } catch (error) {
+    if (error instanceof ZodError) {
+      const errors = formatError(error);
+      res.status(422).json({ message: "Invalid data", errors });
+      return;
+    }
+    res
+      .status(500)
+      .json({ message: "Something went wrong. Please try again later." });
+    return;
+  }
+});
 
 // Regiter route
 router.post("/register", async (req: Request, res: Response) => {
@@ -68,4 +126,9 @@ router.post("/register", async (req: Request, res: Response) => {
   }
 });
 
+// Get user
+router.get("/user", authMiddleware, async (req: Request, res: Response) => {
+  const user = req.user;
+  res.json({ data: user });
+});
 export default router;

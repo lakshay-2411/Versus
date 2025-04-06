@@ -1,6 +1,6 @@
 import { Job, Queue, Worker } from "bullmq";
-import { defaultQueueOptions, redisConnection } from "../config/queue.js";
-import { sendEmail } from "../config/mail.js";
+import { defaultQueueOptions, redisConnection } from "../config/queue";
+import { sendEmail } from "../config/mail";
 
 export const emailQueueName = "emailQueue";
 
