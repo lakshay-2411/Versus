@@ -14,10 +14,7 @@ export const renderEmailEjs = async (
   fileName: string,
   payload: any
 ): Promise<string> => {
-  const __dirname = path.resolve();
-  const html: string = await ejs.renderFile(
-    __dirname + `/views/emails/${fileName}.ejs`,
-    payload
-  );
+  const filePath = path.join(__dirname, "views", "emails", `${fileName}.ejs`);
+  const html: string = await ejs.renderFile(filePath, payload);
   return html;
 };

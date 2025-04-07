@@ -67,6 +67,50 @@ router.post("/login", async (req: Request, res: Response) => {
   }
 });
 
+// Login check route for credentials checkinh
+router.post("/check/credentials", async (req: Request, res: Response) => {
+  try {
+    const body = req.body;
+    const payload = loginSchema.parse(body);
+    let user = await prisma.user.findUnique({
+      where: { email: payload.email },
+    });
+    if (!user || user === null) {
+      res.status(422).json({
+        errors: {
+          email: "No user found with this email.",
+        },
+      });
+      return;
+    }
+    // Check if the password is correct
+    const compare = await bcrypt.compare(payload.password, user?.password);
+    if (!compare) {
+      res.status(422).json({
+        errors: {
+          email: "Invalid email or password.",
+        },
+      });
+      return;
+    }
+
+    res.json({
+      message: "Logged in successfully.",
+      data: {},
+    });
+  } catch (error) {
+    if (error instanceof ZodError) {
+      const errors = formatError(error);
+      res.status(422).json({ message: "Invalid data", errors });
+      return;
+    }
+    res
+      .status(500)
+      .json({ message: "Something went wrong. Please try again later." });
+    return;
+  }
+});
+
 // Regiter route
 router.post("/register", async (req: Request, res: Response) => {
   try {
