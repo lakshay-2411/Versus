@@ -10,6 +10,7 @@ console.log(ejsPath);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(appLimiter);
 
 // Set view engine to EJS
 app.set("view engine", "ejs");
@@ -38,6 +39,7 @@ app.get("/", async (req: Request, res: Response) => {
 // Queues
 import "./jobs/index";
 import { emailQueue, emailQueueName } from "./jobs/EmailJob";
+import { appLimiter } from "./config/rateLimit";
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
