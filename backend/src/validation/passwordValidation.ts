@@ -3,7 +3,7 @@ import { z } from "zod";
 export const forgetPasswordSchema = z.object({
   email: z
     .string({ message: "Email is required." })
-    .email({ message: "IInvalid email address." }),
+    .email({ message: "Invalid email address." }),
 });
 
 export const resetPasswordSchema = z

@@ -13,7 +13,7 @@ import { emailQueue, emailQueueName } from "../jobs/EmailJob";
 const router = Router();
 
 router.post(
-  "forget-password",
+  "/forget-password",
   authLimiter,
   async (req: Request, res: Response) => {
     try {
@@ -31,6 +31,7 @@ router.post(
             email: "No user found with this email.",
           },
         });
+        return;
       }
       const salt = await bcrypt.genSalt(10);
       const token = await bcrypt.hash(uuidV4(), salt);
@@ -45,7 +46,7 @@ router.post(
       });
 
       const url = `${process.env.CLIENT_APP_URL}/reset-password?email=${payload.email}&token=${token}`;
-      const html = renderEmailEjs("forget-password", { url: url });
+      const html = await renderEmailEjs("forget-password", { url: url });
       await emailQueue.add(emailQueueName, {
         to: payload.email,
         subject: "Reset Password",
