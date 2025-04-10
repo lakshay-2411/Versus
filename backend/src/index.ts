@@ -4,12 +4,14 @@ import path from "path";
 import ejs from "ejs";
 import Routes from "./routes/index";
 import fileUpload from "express-fileupload";
+import cors from "cors";
 const app: Application = express();
 const PORT = process.env.PORT || 7000;
 const ejsPath = path.resolve(__dirname, "./views");
 console.log(ejsPath);
 
 app.use(express.json());
+app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 app.use(appLimiter);
 app.use(
