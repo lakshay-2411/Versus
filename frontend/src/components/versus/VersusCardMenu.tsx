@@ -8,8 +8,8 @@ import {
 } from "../ui/dropdown-menu";
 import { EllipsisVertical } from "lucide-react";
 import dynamic from "next/dynamic";
-import { CustomUser } from "@/app/api/auth/[...nextauth]/options";
 const EditVersus = dynamic(() => import("./EditVersus"));
+const DeleteVersus = dynamic(() => import("./DeleteVersus"));
 
 const VersusCardMenu = ({
   versus,
@@ -19,6 +19,7 @@ const VersusCardMenu = ({
   token: string;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   return (
     <>
       {isOpen && (
@@ -27,6 +28,16 @@ const VersusCardMenu = ({
             isOpen={isOpen}
             setIsOpen={setIsOpen}
             versus={versus}
+            token={token}
+          />
+        </Suspense>
+      )}
+      {deleteOpen && (
+        <Suspense fallback={<p>Loading...</p>}>
+          <DeleteVersus
+            isOpen={deleteOpen}
+            setIsOpen={setDeleteOpen}
+            id={versus.id}
             token={token}
           />
         </Suspense>
@@ -40,7 +51,9 @@ const VersusCardMenu = ({
             Edit
           </DropdownMenuItem>
           <DropdownMenuItem>Copy Link</DropdownMenuItem>
-          <DropdownMenuItem>Delete</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setDeleteOpen(true)}>
+            Delete
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </>
