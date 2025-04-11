@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { Dispatch, SetStateAction, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   Dialog,
@@ -17,15 +17,27 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
 import axios, { AxiosError } from "axios";
 import { VERSUS_URL } from "@/lib/apiEndPoints";
-import { CustomUser } from "@/app/api/auth/[...nextauth]/options";
 import { toast } from "sonner";
-import { set } from "date-fns";
 import { clearCache } from "@/actions/commonActions";
 
-const AddVersus = ({ user }: { user: CustomUser }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [versusData, setVersusData] = useState<VersusFormType>({});
-  const [date, setDate] = React.useState<Date | null>();
+const EditVersus = ({
+  token,
+  versus,
+  isOpen,
+  setIsOpen,
+}: {
+  token: string;
+  versus: VersusType;
+  isOpen: boolean;
+  setIsOpen: Dispatch<SetStateAction<boolean>>;
+}) => {
+  const [versusData, setVersusData] = useState<VersusFormType>({
+    title: versus?.title,
+    description: versus?.description,
+  });
+  const [date, setDate] = React.useState<Date | null>(
+    new Date(versus?.expire_at)
+  );
   const [image, setImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<VersusFormTypeError>({});
@@ -44,9 +56,9 @@ const AddVersus = ({ user }: { user: CustomUser }) => {
       formData.append("description", versusData?.description ?? "");
       formData.append("expire_at", date?.toISOString() ?? "");
       if (image) formData.append("image", image);
-      const { data } = await axios.post(VERSUS_URL, formData, {
+      const { data } = await axios.put(`${VERSUS_URL}/${versus.id}`, formData, {
         headers: {
-          Authorization: user?.token,
+          Authorization: token,
         },
       });
       setLoading(false);
@@ -56,7 +68,7 @@ const AddVersus = ({ user }: { user: CustomUser }) => {
         setDate(null);
         setImage(null);
         setErrors({});
-        toast.success("Versus created successfully");
+        toast.success(data?.message);
         setIsOpen(false);
       }
     } catch (error) {
@@ -133,7 +145,7 @@ const AddVersus = ({ user }: { user: CustomUser }) => {
                 <Calendar
                   mode="single"
                   selected={date ?? new Date()}
-                  onSelect={setDate}
+                  onSelect={(date) => setDate(date!)}
                   initialFocus
                 />
               </PopoverContent>
@@ -142,7 +154,7 @@ const AddVersus = ({ user }: { user: CustomUser }) => {
           </div>
           <div className="mt-4">
             <Button disabled={loading} className="w-full">
-              {loading ? "Creating..." : "Create"}
+              {loading ? "Updating..." : "Update"}
             </Button>
           </div>
         </form>
@@ -151,4 +163,4 @@ const AddVersus = ({ user }: { user: CustomUser }) => {
   );
 };
 
-export default AddVersus;
+export default EditVersus;
