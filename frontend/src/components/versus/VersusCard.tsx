@@ -11,6 +11,7 @@ import Image from "next/image";
 import { getImageUrl } from "@/lib/utils";
 import { Button } from "../ui/button";
 import VersusCardMenu from "./VersusCardMenu";
+import Link from "next/link";
 
 const VersusCard = ({
   versus,
@@ -42,7 +43,9 @@ const VersusCard = ({
         </p>
       </CardContent>
       <CardFooter>
-        <Button>Items</Button>
+        <Link href={`/versus/items/${versus.id}`}>
+          <Button>Items</Button>
+        </Link>
       </CardFooter>
     </Card>
   );

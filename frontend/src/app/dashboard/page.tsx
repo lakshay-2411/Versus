@@ -3,7 +3,7 @@ import AddVersus from "@/components/versus/AddVersus";
 import React from "react";
 import { authOptions, CustomSession } from "../api/auth/[...nextauth]/options";
 import { getServerSession } from "next-auth";
-import { fetchVersus } from "../fetch/versusFetch";
+import { fetchVersus } from "../../fetch/versusFetch";
 import VersusCard from "@/components/versus/VersusCard";
 
 const dashboard = async () => {
