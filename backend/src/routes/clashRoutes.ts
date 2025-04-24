@@ -2,7 +2,7 @@ import { Router, Request, Response } from "express";
 import { ZodError } from "zod";
 import { formatError, imageValidator, removeFile, uploadFile } from "../helper";
 import { clashSchema } from "../validation/clashValidation";
-import { UploadedFile } from "express-fileupload";
+import { FileArray, UploadedFile } from "express-fileupload";
 import prisma from "../config/database";
 import authMiddleware from "../middleware/AuthMiddleware";
 
@@ -180,10 +180,43 @@ router.delete("/:id", authMiddleware, async (req: Request, res: Response) => {
 });
 
 // Versus items route
-router.post(
-  "/items",
-  authMiddleware,
-  async (req: Request, res: Response) => {}
-);
+router.post("/items", authMiddleware, async (req: Request, res: Response) => {
+  const { id } = req.body;
+  const files: FileArray | null | undefined = req.files;
+  let imgErrors: Array<string> = [];
+  const images = files?.["images[]"] as UploadedFile[];
+  if (images.length >= 2) {
+    // Check validations
+    images.map((img) => {
+      const validMsg = imageValidator(img?.size, img?.mimetype);
+      if (validMsg) imgErrors.push(validMsg);
+    });
+    if (imgErrors.length > 0) {
+      res.status(422).json({ errors: imgErrors });
+      return;
+    }
+
+    // Upload images
+    let uploadedImages: string[] = [];
+    images.map((img) => {
+      uploadedImages.push(uploadFile(img));
+    });
+
+    uploadedImages.map(async (item) => {
+      await prisma.versusItem.create({
+        data: {
+          image: item,
+          clash_Id: Number(id),
+        },
+      });
+    });
+    res.json({ message: "Versus items created successfully." });
+  } else {
+    res
+      .status(422)
+      .json({ errors: ["Select atleast 2 images for having a Versus!"] });
+    return;
+  }
+});
 
 export default router;

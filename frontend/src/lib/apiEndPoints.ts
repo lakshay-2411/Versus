@@ -9,3 +9,4 @@ export const RESET_PASSWORD_URL = `${BASE_URL}/auth/reset-password`;
 
 // versus apis
 export const VERSUS_URL = `${BASE_URL}/clash`;
+export const VERSUS_ITEMS_URL = `${BASE_URL}/clash/items`;

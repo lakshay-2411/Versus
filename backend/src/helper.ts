@@ -44,7 +44,7 @@ export const bytesToMB = (bytes: number): number => {
   return bytes / (1024 * 1024);
 };
 
-export const uploadFile = async (image: UploadedFile) => {
+export const uploadFile = (image: UploadedFile) => {
   const fileExt = image?.name.split(".");
   const fileName = uuidV4() + "." + fileExt[1];
   const uploadPath = process.cwd() + "/public/images/" + fileName;

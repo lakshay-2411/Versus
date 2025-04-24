@@ -19,3 +19,7 @@ type VersusType = {
   created_at: string;
   expire_at: string;
 };
+
+type VersusItemForm = {
+  image: File | null;
+}
