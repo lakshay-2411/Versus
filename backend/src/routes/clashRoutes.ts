@@ -4,10 +4,11 @@ import { formatError, imageValidator, removeFile, uploadFile } from "../helper";
 import { clashSchema } from "../validation/clashValidation";
 import { UploadedFile } from "express-fileupload";
 import prisma from "../config/database";
+import authMiddleware from "../middleware/AuthMiddleware";
 
 const router = Router();
 
-router.get("/", async (req: Request, res: Response) => {
+router.get("/", authMiddleware, async (req: Request, res: Response) => {
   try {
     const clash = await prisma.clash.findMany({
       where: {
@@ -53,7 +54,7 @@ router.get("/:id", async (req: Request, res: Response) => {
   }
 });
 
-router.post("/", async (req: Request, res: Response) => {
+router.post("/", authMiddleware, async (req: Request, res: Response) => {
   try {
     const body = req.body;
     const payload = clashSchema.parse(body);
@@ -93,7 +94,7 @@ router.post("/", async (req: Request, res: Response) => {
   }
 });
 
-router.put("/:id", async (req: Request, res: Response) => {
+router.put("/:id", authMiddleware, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const body = req.body;
@@ -145,7 +146,7 @@ router.put("/:id", async (req: Request, res: Response) => {
   }
 });
 
-router.delete("/:id", async (req: Request, res: Response) => {
+router.delete("/:id", authMiddleware, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     // remove image
@@ -177,5 +178,12 @@ router.delete("/:id", async (req: Request, res: Response) => {
     return;
   }
 });
+
+// Versus items route
+router.post(
+  "/items",
+  authMiddleware,
+  async (req: Request, res: Response) => {}
+);
 
 export default router;

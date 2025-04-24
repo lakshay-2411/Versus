@@ -27,12 +27,31 @@ model User {
 }
 
 model Clash {
-  id          Int      @id @default(autoincrement())
-  user        User     @relation(fields: [user_Id], references: [id], onDelete: Cascade)
-  user_Id     Int
-  title       String
-  description String
-  image       String
-  expire_at   DateTime
-  created_at  DateTime @default(now())
+  id            Int              @id @default(autoincrement())
+  user          User             @relation(fields: [user_Id], references: [id], onDelete: Cascade)
+  user_Id       Int
+  title         String
+  description   String
+  image         String
+  expire_at     DateTime
+  created_at    DateTime         @default(now())
+  ClashItem     VersusItem[]
+  ClashComments VersusComments[]
+}
+
+model VersusItem {
+  id         Int      @id @default(autoincrement())
+  clash      Clash    @relation(fields: [clash_Id], references: [id], onDelete: Cascade)
+  clash_Id   Int
+  image      String
+  count      Int      @default(0)
+  created_at DateTime @default(now())
+}
+
+model VersusComments {
+  id         Int      @id @default(autoincrement())
+  clash      Clash    @relation(fields: [clash_Id], references: [id], onDelete: Cascade)
+  clash_Id   Int
+  comment    String
+  created_at DateTime @default(now())
 }
