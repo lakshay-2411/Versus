@@ -5,6 +5,7 @@ import { clashSchema } from "../validation/clashValidation";
 import { FileArray, UploadedFile } from "express-fileupload";
 import prisma from "../config/database";
 import authMiddleware from "../middleware/AuthMiddleware";
+import { count } from "console";
 
 const router = Router();
 
@@ -38,6 +39,25 @@ router.get("/:id", async (req: Request, res: Response) => {
     const clash = await prisma.clash.findUnique({
       where: {
         id: Number(id),
+      },
+      include: {
+        ClashItem: {
+          select: {
+            image: true,
+            id: true,
+            count: true,
+          },
+        },
+        ClashComments: {
+          select: {
+            id: true,
+            comment: true,
+            created_at: true,
+          },
+          orderBy: {
+            id: "desc",
+          },
+        },
       },
     });
     res.json({ message: "Clash fetched successfully.", data: clash });

@@ -4,6 +4,7 @@ import {
 } from "@/app/api/auth/[...nextauth]/options";
 import Navbar from "@/components/base/Navbar";
 import AddVersusItems from "@/components/versus/AddVersusItems";
+import ViewVersusItems from "@/components/versus/ViewVersusItems";
 import { fetchSingleVersus } from "@/fetch/versusFetch";
 import { getServerSession } from "next-auth";
 import React from "react";
@@ -18,7 +19,11 @@ const versusItems = async ({ params }: { params: { id: number } }) => {
         <h1 className="text-2xl lg:text-4xl font-extrabold">{versus?.title}</h1>
         <p className="text-lg">{versus?.description}</p>
       </div>
-      <AddVersusItems token={session?.user?.token!} versusId={params?.id} />
+      {versus?.ClashItem && versus?.ClashItem.length > 0 ? (
+        <ViewVersusItems versus={versus} />
+      ) : (
+        <AddVersusItems token={session?.user?.token!} versusId={params?.id} />
+      )}
     </div>
   );
 };

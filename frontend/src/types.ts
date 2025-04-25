@@ -18,8 +18,22 @@ type VersusType = {
   image: string;
   created_at: string;
   expire_at: string;
+  ClashItem: Array<VersusItem>;
+  ClashComments: Array<VersusComment>;
 };
 
 type VersusItemForm = {
   image: File | null;
-}
+};
+
+type VersusItem = {
+  id: number;
+  count: number;
+  image: string;
+};
+
+type VersusComment = {
+  id: number;
+  comment: string;
+  created_at: string;
+};
