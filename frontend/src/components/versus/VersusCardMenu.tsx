@@ -8,6 +8,8 @@ import {
 } from "../ui/dropdown-menu";
 import { EllipsisVertical } from "lucide-react";
 import dynamic from "next/dynamic";
+import Env from "@/lib/env";
+import { toast } from "sonner";
 const EditVersus = dynamic(() => import("./EditVersus"));
 const DeleteVersus = dynamic(() => import("./DeleteVersus"));
 
@@ -20,6 +22,12 @@ const VersusCardMenu = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(`${Env.APP_URL}/versus/${versus.id}`);
+    toast.success("Link copied to clipboard!");
+  };
+
   return (
     <>
       {isOpen && (
@@ -50,7 +58,7 @@ const VersusCardMenu = ({
           <DropdownMenuItem onClick={() => setIsOpen(true)}>
             Edit
           </DropdownMenuItem>
-          <DropdownMenuItem>Copy Link</DropdownMenuItem>
+          <DropdownMenuItem onClick={handleCopy}>Copy Link</DropdownMenuItem>
           <DropdownMenuItem onClick={() => setDeleteOpen(true)}>
             Delete
           </DropdownMenuItem>
