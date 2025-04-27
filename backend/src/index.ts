@@ -64,6 +64,6 @@ import { emailQueue, emailQueueName } from "./jobs/EmailJob";
 import { appLimiter } from "./config/rateLimit";
 import { setupSocket } from "./socket";
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

@@ -2,11 +2,39 @@
 import { getImageUrl } from "@/lib/utils";
 import CountUp from "react-countup";
 import Image from "next/image";
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useState, useEffect } from "react";
+import socket from "@/lib/socket";
 
 const ViewVersusItems = ({ versus }: { versus: VersusType }) => {
   const [versusComments, setVersusComments] = useState(versus?.ClashComments);
   const [versusItems, setVersusItems] = useState(versus?.ClashItem);
+
+  const updateCounter = (id: number) => {
+    const items = [...versusItems];
+    const index = versusItems.findIndex((item) => item.id === id);
+    if (index !== -1) {
+      items[index].count += 1;
+    }
+    setVersusItems(items);
+  };
+
+  const updateComment = (payload: any) => {
+    if (versusComments && versusComments.length > 0) {
+      setVersusComments([payload, ...versusComments]);
+    } else {
+      setVersusComments([payload]);
+    }
+  };
+
+  useEffect(() => {
+    socket.on(`versus-${versus?.id}`, (data) => {
+      updateCounter(data?.versusItemId);
+    });
+    socket.on(`versus_comment-${versus?.id}`, (data) => {
+      updateComment(data);
+    });
+  });
+
   return (
     <div className="mt-10">
       <div className="flex flex-wrap lg:flex-nowrap justify-between items-center">
@@ -29,7 +57,7 @@ const ViewVersusItems = ({ versus }: { versus: VersusType }) => {
                   <CountUp
                     start={0}
                     end={item?.count}
-                    delay={2}
+                    delay={0}
                     className="text-5xl font-extrabold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent"
                   />
                 </div>

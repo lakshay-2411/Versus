@@ -2,14 +2,74 @@
 import { getImageUrl } from "@/lib/utils";
 import CountUp from "react-countup";
 import Image from "next/image";
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useState, useEffect } from "react";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
+import { ThumbsUp } from "lucide-react";
+import socket from "@/lib/socket";
+import { toast } from "sonner";
 
 const VS = ({ versus }: { versus: VersusType }) => {
   const [versusComments, setVersusComments] = useState(versus?.ClashComments);
   const [versusItems, setVersusItems] = useState(versus?.ClashItem);
   const [comment, setComment] = useState("");
+  const [hideVote, setHideVote] = useState(false);
+
+  const handleVote = (id: number) => {
+    if (versusItems && versusItems.length > 0) {
+      setHideVote(true);
+      updateCounter(id);
+      // socket
+      socket.emit(`versus-${versus?.id}`, {
+        versusId: versus?.id,
+        versusItemId: id,
+      });
+    }
+  };
+
+  const updateCounter = (id: number) => {
+    const items = [...versusItems];
+    const index = versusItems.findIndex((item) => item.id === id);
+    if (index !== -1) {
+      items[index].count += 1;
+    }
+    setVersusItems(items);
+  };
+
+  const updateComment = (payload: any) => {
+    if (versusComments && versusComments.length > 0) {
+      setVersusComments([payload, ...versusComments]);
+    } else {
+      setVersusComments([payload]);
+    }
+  };
+
+  const handleComment = (event: React.FormEvent) => {
+    event?.preventDefault();
+    if (comment.length > 2) {
+      const payload = {
+        id: versus?.id,
+        comment: comment,
+        created_at: new Date().toDateString(),
+      };
+      updateComment(payload);
+      socket.emit(`versus_comment-${versus?.id}`, payload);
+      setComment("");
+    } else {
+      toast.warning("Comment should be at least 3 words long");
+    }
+  };
+
+  useEffect(() => {
+    socket.on(`versus-${versus?.id}`, (data) => {
+      updateCounter(data?.versusItemId);
+    });
+
+    socket.on(`versus_comment-${versus?.id}`, (data) => {
+      updateComment(data);
+    });
+  });
+
   return (
     <div className="mt-10">
       <div className="flex flex-wrap lg:flex-nowrap justify-between items-center">
@@ -18,7 +78,7 @@ const VS = ({ versus }: { versus: VersusType }) => {
           versusItems.map((item, index) => {
             return (
               <Fragment key={index}>
-                <div className="w-full lg:w-[500px] flex justify-center items-center flex-col">
+                <div className="w-full lg:w-[500px] flex justify-center items-center flex-col gap-2">
                   <div className="w-full flex justify-center items-center rounded-md cursor-pointer p-2 h-[300px]">
                     <Image
                       src={getImageUrl(item?.image)}
@@ -28,13 +88,18 @@ const VS = ({ versus }: { versus: VersusType }) => {
                       className="w-full h-[300px] object-contain"
                     />
                   </div>
-
-                  <CountUp
-                    start={0}
-                    end={item?.count}
-                    delay={2}
-                    className="text-5xl font-extrabold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent"
-                  />
+                  {hideVote ? (
+                    <CountUp
+                      start={0}
+                      end={item?.count}
+                      delay={0}
+                      className="text-5xl font-extrabold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent"
+                    />
+                  ) : (
+                    <Button onClick={() => handleVote(item?.id)}>
+                      <span className="text-sm">Vote</span> <ThumbsUp />
+                    </Button>
+                  )}
                 </div>
 
                 {/* VS block */}
@@ -50,7 +115,10 @@ const VS = ({ versus }: { versus: VersusType }) => {
           })}
       </div>
 
-      <form className="mt-4 w-full flex flex-col items-center justify-center">
+      <form
+        className="mt-4 w-full flex flex-col items-center justify-center"
+        onSubmit={handleComment}
+      >
         <Textarea
           placeholder="Type your suggestions ☺️"
           value={comment}
