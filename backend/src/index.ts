@@ -5,6 +5,7 @@ import ejs from "ejs";
 import Routes from "./routes/index";
 import fileUpload from "express-fileupload";
 import cors from "cors";
+import helmet from "helmet";
 import { Server } from "socket.io";
 import { createServer, Server as httpServer } from "http";
 const PORT = process.env.PORT || 7000;
@@ -23,6 +24,7 @@ export { io };
 setupSocket(io);
 
 app.use(express.json());
+app.use(helmet());
 app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 app.use(appLimiter);
