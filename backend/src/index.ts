@@ -5,10 +5,22 @@ import ejs from "ejs";
 import Routes from "./routes/index";
 import fileUpload from "express-fileupload";
 import cors from "cors";
-const app: Application = express();
+import { Server } from "socket.io";
+import { createServer, Server as httpServer } from "http";
 const PORT = process.env.PORT || 7000;
 const ejsPath = path.resolve(__dirname, "./views");
 console.log(ejsPath);
+
+const app: Application = express();
+const server: httpServer = createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: process.env.CLIENT_APP_URL,
+  },
+});
+
+export { io };
+setupSocket(io);
 
 app.use(express.json());
 app.use(cors());
@@ -50,6 +62,7 @@ app.get("/", async (req: Request, res: Response) => {
 import "./jobs/index";
 import { emailQueue, emailQueueName } from "./jobs/EmailJob";
 import { appLimiter } from "./config/rateLimit";
+import { setupSocket } from "./socket";
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
