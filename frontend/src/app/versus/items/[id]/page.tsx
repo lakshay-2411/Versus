@@ -9,8 +9,13 @@ import { fetchSingleVersus } from "@/fetch/versusFetch";
 import { getServerSession } from "next-auth";
 import React from "react";
 
-const versusItems = async ({ params }: { params: { id: number } }) => {
-  const versus: VersusType | null = await fetchSingleVersus(params.id);
+const versusItems = async ({
+  params,
+}: {
+  params: Promise<{ id: number }>;
+}) => {
+  const { id } = await params;
+  const versus: VersusType | null = await fetchSingleVersus(id);
   const session: CustomSession | null = await getServerSession(authOptions);
   return (
     <div className="container">
@@ -22,7 +27,7 @@ const versusItems = async ({ params }: { params: { id: number } }) => {
       {versus?.ClashItem && versus?.ClashItem.length > 0 ? (
         <ViewVersusItems versus={versus} />
       ) : (
-        <AddVersusItems token={session?.user?.token!} versusId={params?.id} />
+        <AddVersusItems token={session?.user?.token!} versusId={id} />
       )}
     </div>
   );

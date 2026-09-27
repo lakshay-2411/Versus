@@ -1,6 +1,6 @@
 import ForgetPassword from "@/components/auth/ForgetPassword";
 import ResetPassword from "@/components/auth/ResetPassword";
-import React from "react";
+import React, { Suspense } from "react";
 
 const forgetPassword = () => {
   return (
@@ -11,7 +11,9 @@ const forgetPassword = () => {
         </h1>
         <h1 className="text-3xl font-bold">Reset Password</h1>
         
-        <ResetPassword />
+        <Suspense>
+          <ResetPassword />
+        </Suspense>
       </div>
     </div>
   );

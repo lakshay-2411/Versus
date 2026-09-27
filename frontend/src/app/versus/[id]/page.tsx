@@ -3,8 +3,13 @@ import VS from "@/components/versus/VS";
 import { fetchSingleVersus } from "@/fetch/versusFetch";
 import React from "react";
 
-const versusItems = async ({ params }: { params: { id: number } }) => {
-  const versus: VersusType | null = await fetchSingleVersus(params.id);
+const versusItems = async ({
+  params,
+}: {
+  params: Promise<{ id: number }>;
+}) => {
+  const { id } = await params;
+  const versus: VersusType | null = await fetchSingleVersus(id);
   return (
     <div className="container">
       <Navbar />
