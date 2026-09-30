@@ -8,6 +8,14 @@ const nextConfig: NextConfig = {
         hostname: "localhost",
         protocol: "http",
       },
+      {
+        hostname: "**.onrender.com",
+        protocol: "https",
+      },
+      {
+        hostname: "**.up.railway.app",
+        protocol: "https",
+      },
     ],
   },
   reactStrictMode: false,

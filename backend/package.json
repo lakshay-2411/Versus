@@ -4,18 +4,28 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/index.js",
+    "build": "prisma generate && tsc && npm run copy-files",
+    "start": "prisma migrate deploy && node dist/index.js",
     "copy-files": "copyfiles -u 1 \"src/views/**/*\" dist/",
     "dev": "concurrently \"npx tsx src/index.ts\" \"npm run watch-views\"",
     "watch-views": "nodemon --watch src/views -e ejs -x \"npm run copy-files\"",
-    "prod": "npm run build && npm run start"
+    "prod": "npm run build && npm run start",
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^6.5.0",
+    "@types/bcrypt": "^5.0.2",
+    "@types/cors": "^2.8.17",
+    "@types/ejs": "^3.1.5",
+    "@types/express": "^5.0.1",
+    "@types/express-fileupload": "^1.5.1",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/node": "^22.14.0",
+    "@types/nodemailer": "^6.4.17",
+    "@types/uuid": "^10.0.0",
     "bcrypt": "^5.1.1",
     "bullmq": "^5.46.1",
     "concurrently": "^9.1.2",
@@ -32,22 +42,16 @@
     "nodemailer": "^6.10.0",
     "prisma": "^6.5.0",
     "socket.io": "^4.8.1",
+    "typescript": "^5.8.3",
     "uuid": "^11.1.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@types/bcrypt": "^5.0.2",
-    "@types/cors": "^2.8.17",
-    "@types/ejs": "^3.1.5",
-    "@types/express": "^5.0.1",
-    "@types/express-fileupload": "^1.5.1",
-    "@types/jsonwebtoken": "^9.0.9",
-    "@types/node": "^22.14.0",
-    "@types/nodemailer": "^6.4.17",
-    "@types/uuid": "^10.0.0",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
-    "tsx": "^4.19.3",
-    "typescript": "^5.8.3"
+    "tsx": "^4.19.3"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

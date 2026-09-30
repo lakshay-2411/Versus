@@ -1,18 +1,21 @@
 import express, { Application, Request, Response } from "express";
 import "dotenv/config";
 import path from "path";
-import ejs from "ejs";
 import Routes from "./routes/index";
 import fileUpload from "express-fileupload";
 import cors from "cors";
 import helmet from "helmet";
 import { Server } from "socket.io";
 import { createServer, Server as httpServer } from "http";
-const PORT = process.env.PORT || 7000;
-const ejsPath = path.resolve(__dirname, "./views");
-console.log(ejsPath);
+import { appLimiter } from "./config/rateLimit";
+import { setupSocket } from "./socket";
+// Registers the BullMQ queues and workers (email, voting, comments)
+import "./jobs/index";
 
+const PORT = process.env.PORT || 7000;
 const app: Application = express();
+// Running behind a reverse proxy (Render): needed for correct client IPs in rate limiting
+app.set("trust proxy", 1);
 const server: httpServer = createServer(app);
 const io = new Server(server, {
   cors: {
@@ -24,10 +27,14 @@ export { io };
 setupSocket(io);
 
 app.use(express.json());
-app.use(helmet());
+app.use(
+  helmet({
+    // Uploaded images are loaded cross-origin by the Vercel frontend
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  })
+);
 app.use(cors());
 app.use(express.urlencoded({ extended: false }));
-app.use(appLimiter);
 app.use(
   fileUpload({
     useTempFiles: true,
@@ -35,6 +42,7 @@ app.use(
   })
 );
 app.use(express.static("public"));
+app.use(appLimiter);
 
 // Set view engine to EJS
 app.set("view engine", "ejs");
@@ -43,28 +51,9 @@ app.set("views", path.join(__dirname, "views"));
 // Routes
 app.use(Routes);
 
-app.get("/", async (req: Request, res: Response) => {
-  try {
-    const html = await ejs.renderFile(__dirname + `/views/emails/welcome.ejs`, {
-      name: "Lakshay Nandwani",
-    });
-    // await sendEmail("gifixan327@motivue.com", "Testing SMTP", html);
-    await emailQueue.add(emailQueueName, {
-      to: "princeyadav31000@gmail.com",
-      subject: "Testing Queue email",
-      body: html,
-    });
-    res.json({ msg: "Email sent successfully" });
-  } catch (error) {
-    console.log(error);
-  }
+app.get("/", (req: Request, res: Response) => {
+  res.json({ status: "ok", uptime: process.uptime() });
 });
-
-// Queues
-import "./jobs/index";
-import { emailQueue, emailQueueName } from "./jobs/EmailJob";
-import { appLimiter } from "./config/rateLimit";
-import { setupSocket } from "./socket";
 
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
